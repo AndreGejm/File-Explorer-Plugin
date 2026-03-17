@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 from typing import List, Union, Set, Optional, Any
-from inspector_types import NodeErrorCode, NodeErrorJSON
+from .inspector_types import NodeErrorCode, NodeErrorJSON
 
 class InspectorUtils:
     """

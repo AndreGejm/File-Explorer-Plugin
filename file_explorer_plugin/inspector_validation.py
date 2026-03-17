@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional, Tuple
-from inspector_types import ScanConfig, ErrorResponse, validate_scan_config, FileSystemProvider, LocalFileSystemProvider
-from inspector_utils import InspectorUtils
+from .inspector_types import ScanConfig, ErrorResponse, validate_scan_config, FileSystemProvider, LocalFileSystemProvider
+from .inspector_utils import InspectorUtils
 
 class InspectorValidation:
     """

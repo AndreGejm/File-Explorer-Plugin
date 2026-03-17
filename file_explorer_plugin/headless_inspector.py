@@ -3,9 +3,9 @@ import json
 import argparse
 from pathlib import Path
 from typing import List
-from inspector_types import ScanConfig, ErrorResponse, FileNodeJSON, FileSystemProvider, LocalFileSystemProvider
-from inspector_validation import InspectorValidation
-from inspector_core import DirectoryInspectorCore
+from .inspector_types import ScanConfig, ErrorResponse, FileNodeJSON, FileSystemProvider, LocalFileSystemProvider
+from .inspector_validation import InspectorValidation
+from .inspector_core import DirectoryInspectorCore
 
 def run_headless():
     """

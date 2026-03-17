@@ -11,6 +11,8 @@ import zipfile
 import platform
 import _tkinter
 import json
+import datetime
+import subprocess
 
 from .utils import FileNode, ScanStatus, FileUtils
 from .themes import ThemeEngine

@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List, Optional, Set, Iterator, Any
-from inspector_types import FileNodeJSON, ScanConfig, FileSystemProvider, LocalFileSystemProvider
-from inspector_utils import InspectorUtils
+from .inspector_types import FileNodeJSON, ScanConfig, FileSystemProvider, LocalFileSystemProvider
+from .inspector_utils import InspectorUtils
 
 class DirectoryInspectorCore:
     """
