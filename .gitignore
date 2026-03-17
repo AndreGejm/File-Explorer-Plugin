@@ -1,4 +1,4 @@
-# Python
+# Python Cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -11,15 +11,17 @@ __pycache__/
 .venv/
 venv/
 ENV/
+env.bak/
+venv.bak/
 
-# Project specific
+# Project Artifacts
 archive/
-docs/
-tests/
-*.txt
-*.json
 folder_contents.txt
+*.log
+*.tmp
 
 # OS
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/

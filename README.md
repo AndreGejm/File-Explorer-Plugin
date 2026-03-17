@@ -60,24 +60,24 @@ root.mainloop()
 
 For applications that want to use the scanning engine without the Tkinter UI (e.g., a Rust backend, a web service, or a CLI tool), the plugin provides a dedicated JSON output mode.
 
-### Usage via CLI
+### Usage via CLI (Headless)
 
-You can invoke the scanner from any language and capture the JSON output from `stdout`:
+The scanning engine can be invoked directly as a module for machine-readable JSON output:
 
 ```bash
-# Scan current directory and output JSON (using the high-performance engine)
-python main.py . --json --new-engine
+# Scan current directory and output JSON
+python -m file_explorer_plugin.headless_inspector .
 
-# Limit scan depth
-python main.py /path/to/scan --json --new-engine --depth 2
+# Limit scan depth and sort by size
+python -m file_explorer_plugin.headless_inspector /path/to/scan --max-depth 2 --sort-by size
 
-# Sort by size
-python main.py . --json --new-engine --sort size
+# Exclude specific patterns
+python -m file_explorer_plugin.headless_inspector . --exclude "__pycache__" --exclude ".git"
 ```
 
 ### Integration Pattern (e.g., Rust/Node.js)
 
-1. **Spawn**: Call `python main.py <path> --json --new-engine` as a subprocess.
+1. **Spawn**: Call `python -m file_explorer_plugin.headless_inspector <path>` as a subprocess.
 2. **Capture**: Read the content of `stdout`.
 3. **Parse**: Deserialize the JSON string into your language's native data structures.
 
@@ -88,28 +88,41 @@ The output is a JSON array of objects, where each object represents a file or di
 ```json
 [
   {
-    "path": "C:\\Path\\To\\File.txt",
-    "name": "File.txt",
+    "path_absolute": "C:\\Dev\\Project\\file.txt",
+    "name": "file.txt",
     "is_dir": false,
     "size_bytes": 1024,
-    "modified_epoch": 1710684000.0,
+    "modified_epoch_s": 1710684000.0,
     "extension": ".txt",
     "depth": 0,
     "error": null
+  },
+  {
+    "path_absolute": "C:\\Dev\\Project\\locked_folder",
+    "name": "locked_folder",
+    "is_dir": true,
+    "size_bytes": 0,
+    "modified_epoch_s": 1710684000.0,
+    "extension": "",
+    "depth": 0,
+    "error": {
+      "code": "ACCESS_DENIED",
+      "message": "Permission denied"
+    }
   }
 ]
 ```
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `path` | `string` | Absolute path to the item. |
+| `path_absolute` | `string` | Normalized absolute path to the item. |
 | `name` | `string` | Name of the file or directory. |
 | `is_dir` | `boolean` | `true` if it's a directory, `false` otherwise. |
-| `size_bytes` | `integer` | Size in bytes (0 for unreadable directories). |
-| `modified_epoch` | `float` | Last modified timestamp in Unix epoch seconds. |
+| `size_bytes` | `integer` | Size in bytes. |
+| `modified_epoch_s` | `float` | Last modified timestamp in Unix epoch seconds. |
 | `extension` | `string` | File extension (empty for directories). |
 | `depth` | `integer` | Depth relative to the scan root. |
-| `error` | `string|null` | Error message if the item was unreadable (e.g., Permission Denied). |
+| `error` | `object|null` | Structured error if the item was unreadable. |
 
 ## Requirements
 
@@ -119,8 +132,12 @@ The output is a JSON array of objects, where each object represents a file or di
 
 ## Directory Structure
 
-- `main.py`: Entry point and `ExplorerComponent` definition.
-- `assets/`: UI icons.
-- `inspector_core.py`: Backend scanning engine.
-- `inspector_utils.py`: File system and string utilities.
-- `inspector_types.py`: Type definitions and models.
+- `main.py`: Demo launcher for both GUI and CLI modes.
+- `file_explorer_plugin/`: The official plugin package.
+    - `__init__.py`: Public API (import `ExplorerComponent` here).
+    - `explorer.py`: UI Component and adapters.
+    - `headless_inspector.py`: **Stable JSON CLI entrypoint.**
+    - `inspector_core.py`: Core scanning engine logic.
+    - `themes.py`: Built-in dark/light theme engines.
+- `assets/`: UI icons and images.
+- `tests/`: Reliability and contract verification tests.
