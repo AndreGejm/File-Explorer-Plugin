@@ -18,9 +18,8 @@ You can easily embed the `ExplorerComponent` into any Tkinter application.
 
 ```python
 import tkinter as tk
-from tkinter import ttk
 from pathlib import Path
-from main import ExplorerComponent, ThemeEngine
+from file_explorer_plugin import ExplorerComponent, ThemeEngine
 
 def on_file_select(path):
     print(f"Selected: {path}")
