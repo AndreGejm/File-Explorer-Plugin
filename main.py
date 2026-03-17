@@ -14,6 +14,7 @@ import queue
 import re
 import shutil
 import zipfile
+import json
 from enum import Enum, auto
 from typing import Optional, List, Generator, Tuple, Union, TypedDict, Callable, Set, Any
 from inspector_types import FileNodeJSON, ScanConfig
@@ -209,6 +210,25 @@ class DirectoryInspector:
         """Prints the structure to console."""
         for line in self.get_structure_lines(): print(line)
 
+    def export_to_json(self):
+        """Prints the entire scan result as a JSON array to stdout (legacy engine)."""
+        try:
+            results = []
+            def _collect(path=None, level=0):
+                target_path = Path(path or self.root_path) if (path or self.root_path) else None
+                if not target_path or (self.max_depth is not None and level > self.max_depth): return
+                for result in self.scan_dir_generator(target_path, current_depth=level):
+                    if isinstance(result, dict):
+                        node = result.copy()
+                        node["path"] = str(node["path"])
+                        results.append(node)
+                        if node["is_dir"] and not node["error"]:
+                            _collect(Path(node["path"]), level + 1)
+            _collect()
+            print(json.dumps(results, indent=2))
+        except Exception as e:
+            print(json.dumps({"error": str(e)}))
+
     @staticmethod
     def open_path(path: Union[Path, str]):
         """Platform-agnostic file opening."""
@@ -371,6 +391,20 @@ class HeadlessInspectorAdapter:
                         f.write(f"{indent}{n['name']}\n")
             print(f"Exported to {output_file} (New Engine)")
         except Exception as e: print(f"Export failed: {e}")
+
+    def export_to_json(self):
+        """Prints the entire scan result as a JSON array to stdout."""
+        try:
+            results = list(self.scan())
+            # Convert Path objects to strings for JSON serialization
+            serializable = []
+            for n in results:
+                n_copy = n.copy()
+                n_copy["path"] = str(n_copy["path"])
+                serializable.append(n_copy)
+            print(json.dumps(serializable, indent=2))
+        except Exception as e:
+            print(json.dumps({"error": str(e)}))
 
     def run_cli(self):
         """Prints the structure to console using the new core."""
@@ -936,7 +970,8 @@ def main():
     parser = argparse.ArgumentParser(description="Professional Directory Inspector")
     parser.add_argument("path", nargs="?", default=".", help="Directory to inspect")
     parser.add_argument("--gui", action="store_true"); parser.add_argument("--cli", action="store_true")
-    parser.add_argument("--export", metavar="FILE"); parser.add_argument("--depth", type=int)
+    parser.add_argument("--export", metavar="FILE"); parser.add_argument("--json", action="store_true", help="Output results as JSON to stdout")
+    parser.add_argument("--depth", type=int)
     parser.add_argument("--threshold", type=int, default=1000); parser.add_argument("--sort", choices=["name", "type", "size"], default="name")
     parser.add_argument("--new-engine", action="store_true", help="Use the new headless scanning engine")
     args = parser.parse_args(); path = Path(args.path).resolve()
@@ -946,8 +981,17 @@ def main():
         inspector = HeadlessInspectorAdapter(path, sort_by=args.sort, max_depth=args.depth, item_count_threshold=args.threshold)
     else:
         inspector = DirectoryInspector(path, max_depth=args.depth, item_count_threshold=args.threshold, sort_by=args.sort)
-    if args.gui or (not args.cli and not args.export and ('DISPLAY' in os.environ or platform.system() == "Windows")):
+    if args.gui or (not args.cli and not args.export and not args.json and ('DISPLAY' in os.environ or platform.system() == "Windows")):
         InspectorApp(path, inspector=inspector).run()
+    elif args.json:
+        if hasattr(inspector, 'export_to_json'):
+            inspector.export_to_json()
+        else:
+            # Fallback for legacy inspector
+            results = []
+            for line in inspector.get_structure_lines():
+                results.append(line)
+            print(json.dumps(results, indent=2))
     elif args.export: inspector.export_to_file(args.export)
     else: inspector.run_cli()
 

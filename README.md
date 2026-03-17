@@ -57,6 +57,61 @@ root.mainloop()
 | `set_theme(palette: dict)` | Applies a theme palette (use `ThemeEngine.DEFAULT_DARK` or `DEFAULT_LIGHT`). |
 | `refresh()` | Reloads the current directory structure. |
 
+## Headless Integration (JSON API)
+
+For applications that want to use the scanning engine without the Tkinter UI (e.g., a Rust backend, a web service, or a CLI tool), the plugin provides a dedicated JSON output mode.
+
+### Usage via CLI
+
+You can invoke the scanner from any language and capture the JSON output from `stdout`:
+
+```bash
+# Scan current directory and output JSON (using the high-performance engine)
+python main.py . --json --new-engine
+
+# Limit scan depth
+python main.py /path/to/scan --json --new-engine --depth 2
+
+# Sort by size
+python main.py . --json --new-engine --sort size
+```
+
+### Integration Pattern (e.g., Rust/Node.js)
+
+1. **Spawn**: Call `python main.py <path> --json --new-engine` as a subprocess.
+2. **Capture**: Read the content of `stdout`.
+3. **Parse**: Deserialize the JSON string into your language's native data structures.
+
+### JSON Schema
+
+The output is a JSON array of objects, where each object represents a file or directory:
+
+```json
+[
+  {
+    "path": "C:\\Path\\To\\File.txt",
+    "name": "File.txt",
+    "is_dir": false,
+    "size_bytes": 1024,
+    "modified_epoch": 1710684000.0,
+    "extension": ".txt",
+    "depth": 0,
+    "error": null
+  }
+]
+```
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `path` | `string` | Absolute path to the item. |
+| `name` | `string` | Name of the file or directory. |
+| `is_dir` | `boolean` | `true` if it's a directory, `false` otherwise. |
+| `size_bytes` | `integer` | Size in bytes (0 for unreadable directories). |
+| `modified_epoch` | `float` | Last modified timestamp in Unix epoch seconds. |
+| `extension` | `string` | File extension (empty for directories). |
+| `depth` | `integer` | Depth relative to the scan root. |
+| `error` | `string|null` | Error message if the item was unreadable (e.g., Permission Denied). |
+
 ## Requirements
 
 - Python 3.8+
