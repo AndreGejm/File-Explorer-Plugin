@@ -3,6 +3,7 @@ import datetime
 from pathlib import Path
 from typing import List, Union, Optional, TypedDict
 from enum import Enum, auto
+import sys
 from .inspector_utils import InspectorUtils
 
 class ScanStatus(Enum):
@@ -25,6 +26,21 @@ class FileNode(TypedDict):
     extension: str
     depth: int
     error: Optional[str]
+
+class Logger:
+    """Internal logging utility."""
+    @staticmethod
+    def info(msg: str):
+        print(f"[INFO] {msg}", file=sys.stderr)
+    
+    @staticmethod
+    def error(msg: str):
+        print(f"[ERROR] {msg}", file=sys.stderr)
+    
+    @staticmethod
+    def debug(msg: str):
+        # Could be toggled
+        pass
 
 class FileUtils:
     """Pure utility layer for formatting and system operations."""

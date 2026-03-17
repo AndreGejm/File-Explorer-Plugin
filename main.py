@@ -13,7 +13,8 @@ from file_explorer_plugin import (
     HeadlessInspectorAdapter, 
     DirectoryInspector,
     ScanStatus,
-    FileUtils
+    FileUtils,
+    Logger
 )
 
 class InspectorApp:
@@ -94,7 +95,7 @@ def main():
     path = Path(args.path).resolve()
     
     if not path.exists():
-        print(f"[ERROR] Path does not exist: {path}")
+        Logger.error(f"Path does not exist: {path}")
         sys.exit(1)
     
     # Initialize appropriate inspector

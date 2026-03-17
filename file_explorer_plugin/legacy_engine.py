@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 from typing import Optional, Generator, Union
-from .utils import FileNode, ScanStatus, FileUtils
+from .utils import FileNode, ScanStatus, FileUtils, Logger
 from .inspector_utils import InspectorUtils
 
 class DirectoryInspector:
@@ -132,9 +132,9 @@ class DirectoryInspector:
         try:
             with open(output_file, 'w', encoding='utf-8') as f:
                 for line in self.get_structure_lines(): f.write(line + "\n")
-            print(f"[EXPORT] Successfully saved structure to {output_file}")
+            Logger.info(f"[EXPORT] Successfully saved structure to {output_file}")
         except Exception as e: 
-            print(f"[EXPORT ERROR] Failed to save to {output_file}: {e}")
+            Logger.error(f"[EXPORT] Failed to save to {output_file}: {e}")
 
     @staticmethod
     def open_path(path: Path):

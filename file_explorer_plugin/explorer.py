@@ -14,7 +14,7 @@ import json
 import datetime
 import subprocess
 
-from .utils import FileNode, ScanStatus, FileUtils
+from .utils import FileNode, ScanStatus, FileUtils, Logger
 from .themes import ThemeEngine
 from .legacy_engine import DirectoryInspector
 from .inspector_core import DirectoryInspectorCore
@@ -127,8 +127,8 @@ class HeadlessInspectorAdapter:
                         f.write(f"{indent}{n['name']}/\n")
                     else:
                         f.write(f"{indent}{n['name']}\n")
-            print(f"Exported to {output_file} (New Engine)")
-        except Exception as e: print(f"Export failed: {e}")
+                Logger.info(f"Exported to {output_file} (New Engine)")
+        except Exception as e: Logger.error(f"Export failed: {e}")
 
     def export_to_json(self):
         """Prints the entire scan result as a JSON array to stdout."""
@@ -211,7 +211,7 @@ class ExplorerComponent(ttk.Frame):
                     else: self._icons[key] = ""
                 else: self._icons[key] = ""
             except Exception as e:
-                print(f"[UI ERROR] Failed to load icon {key} ({filename}): {e}", flush=True)
+                Logger.error(f"[UI] Failed to load icon {key} ({filename}): {e}")
                 self._icons[key] = ""
 
     def _get_icon_for_node(self, node: FileNode):
