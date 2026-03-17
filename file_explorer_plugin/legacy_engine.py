@@ -67,25 +67,19 @@ class DirectoryInspector:
                 if self.should_exclude(item): continue
                 
                 is_dir = item.is_dir()
+                node: FileNode = {
+                    "path": item, "name": item.name, "is_dir": is_dir,
+                    "size_bytes": 0, "modified_epoch": 0.0,
+                    "extension": item.suffix if not is_dir else "",
+                    "depth": current_depth, "error": None
+                }
+
                 try:
                     stat = item.stat()
-                    node: FileNode = {
-                        "path": item,
-                        "name": item.name,
-                        "is_dir": is_dir,
-                        "size_bytes": stat.st_size,
-                        "modified_epoch": stat.st_mtime,
-                        "extension": item.suffix if not is_dir else "",
-                        "depth": current_depth,
-                        "error": None
-                    }
+                    node["size_bytes"] = stat.st_size
+                    node["modified_epoch"] = stat.st_mtime
                 except (PermissionError, OSError) as e:
-                    node: FileNode = {
-                        "path": item, "name": item.name, "is_dir": is_dir,
-                        "size_bytes": 0, "modified_epoch": 0.0,
-                        "extension": item.suffix if not is_dir else "",
-                        "depth": current_depth, "error": str(e)
-                    }
+                    node["error"] = str(e)
                 
                 if query:
                     q = query.lower()
@@ -138,8 +132,14 @@ class DirectoryInspector:
         try:
             with open(output_file, 'w', encoding='utf-8') as f:
                 for line in self.get_structure_lines(): f.write(line + "\n")
-            print(f"Exported to {output_file}")
-        except Exception as e: print(f"Export failed: {e}")
+            print(f"[EXPORT] Successfully saved structure to {output_file}")
+        except Exception as e: 
+            print(f"[EXPORT ERROR] Failed to save to {output_file}: {e}")
+
+    @staticmethod
+    def open_path(path: Path):
+        """Delegates to FileUtils for OS-agnostic opening."""
+        FileUtils.open_path(path)
 
     def run_cli(self):
         """Prints the structure to console."""

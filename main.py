@@ -94,7 +94,7 @@ def main():
     path = Path(args.path).resolve()
     
     if not path.exists():
-        print(f"Error: Path does not exist: {path}")
+        print(f"[ERROR] Path does not exist: {path}")
         sys.exit(1)
     
     # Initialize appropriate inspector

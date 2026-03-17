@@ -10,9 +10,9 @@ A professional, highly-hardened directory explorer component for Tkinter applica
 - **Rich Context Menu**: Open files, copy paths, rename, delete, and compress to ZIP directly from the UI.
 - **Adaptive Layout**: Intelligent resizing that prioritizes the file/folder name column.
 
-## How to Use as a Plugin
+## Getting Started
 
-You can easily embed the `ExplorerComponent` into any Tkinter application.
+The most common way to use this plugin is either by embedding it into a Tkinter UI or by utilizing its high-performance headless scanning engine via CLI.
 
 ### Basic Integration Example
 

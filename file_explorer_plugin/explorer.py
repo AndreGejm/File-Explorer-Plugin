@@ -205,11 +205,13 @@ class ExplorerComponent(ttk.Frame):
                 if path.exists():
                     img = tk.PhotoImage(file=str(path))
                     w, h = img.width(), img.height()
-                    factor = max(1, w // 16)
-                    self._icons[key] = img.subsample(x=factor, y=factor)
+                    if w > 0 and h > 0:
+                        factor = max(1, w // 16)
+                        self._icons[key] = img.subsample(x=factor, y=factor)
+                    else: self._icons[key] = ""
                 else: self._icons[key] = ""
             except Exception as e:
-                print(f"[UI ERROR] Failed to load icon {filename}: {e}", flush=True)
+                print(f"[UI ERROR] Failed to load icon {key} ({filename}): {e}", flush=True)
                 self._icons[key] = ""
 
     def _get_icon_for_node(self, node: FileNode):
@@ -222,10 +224,10 @@ class ExplorerComponent(ttk.Frame):
 
     def _setup_ui(self):
         self.breadcrumb_frame = ttk.Frame(self, style="Explorer.TFrame")
-        self.breadcrumb_frame.pack(fill='x', padx=5, pady=(0, 5))
+        self.breadcrumb_frame.pack(fill='x', padx=5, pady=(2, 5))
 
         ctrl_frame = ttk.Frame(self, style="Explorer.TFrame")
-        ctrl_frame.pack(fill='x', pady=(0, 5))
+        ctrl_frame.pack(fill='x', pady=(0, 8))
         
         filter_frame = ttk.Frame(ctrl_frame, style="Explorer.TFrame")
         filter_frame.pack(side='left', padx=5)
@@ -302,7 +304,7 @@ class ExplorerComponent(ttk.Frame):
         path = self.get_selection()
         if path:
             if path.is_dir(): self.set_root(path)
-            else: DirectoryInspector.open_path(path)
+            else: FileUtils.open_path(path)
 
     def ctx_open_terminal(self):
         path = self.get_selection()
@@ -443,7 +445,8 @@ class ExplorerComponent(ttk.Frame):
         except Exception: return None
 
     def refresh(self):
-        if self.root_path: self.set_root(self.root_path)
+        if self.root_path and self.root_path.exists(): 
+            self.set_root(self.root_path)
 
     def bind_event(self, event_type: str, callback: Callable[[Path], None]):
         if event_type in self._event_callbacks:

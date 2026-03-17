@@ -51,5 +51,21 @@ class FileUtils:
             return "Unknown"
 
     @staticmethod
+    def open_path(path: Path):
+        """OS-agnostic file opening."""
+        if not path.exists(): return
+        try:
+            import subprocess
+            import platform
+            if platform.system() == "Windows":
+                os.startfile(str(path))
+            elif platform.system() == "Darwin":
+                subprocess.Popen(["open", str(path)])
+            else:
+                subprocess.Popen(["xdg-open", str(path)])
+        except Exception as e:
+            print(f"[OS ERROR] Failed to open path {path}: {e}")
+
+    @staticmethod
     def natural_sort_key(s: str) -> List[Union[int, str]]:
         return InspectorUtils.natural_sort_key(s)
